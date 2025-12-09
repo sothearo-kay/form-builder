@@ -1,11 +1,11 @@
 <script setup lang="ts" generic="Data extends Record<string, any>">
 import type { FormSubmitEvent } from "@nuxt/ui";
-import type { Field } from "./types";
+import type { Field, FieldOrRow } from "./types";
 import { z } from "zod";
-import { componentMap } from "./helpers";
+import FieldRenderer from "./FieldRenderer.vue";
 
 interface Props {
-  fields: Field[];
+  items: FieldOrRow[];
   initialValues?: Data;
 }
 
@@ -15,8 +15,14 @@ const emit = defineEmits<{
   submit: [data: Data];
 }>();
 
+const allFields = computed(() => {
+  return props.items.flatMap(item =>
+    isRow(item) ? item.fields : [item],
+  );
+});
+
 const state = reactive<Data>(
-  props.fields.reduce((acc, field) => {
+  allFields.value.reduce((acc, field) => {
     const initialValues = props.initialValues ?? ({} as Data);
     acc[field.name] = initialValues[field.name] ?? "";
     return acc;
@@ -26,7 +32,7 @@ const state = reactive<Data>(
 const schema = computed(() => {
   const shape: Record<string, any> = {};
 
-  props.fields.forEach((field) => {
+  allFields.value.forEach((field) => {
     if (field.validation) {
       shape[field.name] = field.validation;
     }
@@ -37,11 +43,8 @@ const schema = computed(() => {
 
 type Schema = z.infer<(typeof schema)["value"]>;
 
-function getComponent(field: Field) {
-  if (typeof field.component === "string") {
-    return componentMap[field.component] || field.component;
-  }
-  return field.component;
+function isRow(item: FieldOrRow): item is { type: "row"; fields: Field[] } {
+  return "type" in item && item.type === "row";
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -56,23 +59,26 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormField
-      v-for="field in fields"
-      :key="field.name"
-      :name="field.name"
-      :label="field.label"
-      :description="field.description"
-      :required="field.required"
-    >
-      <component
-        :is="getComponent(field)"
-        v-model="state[field.name]"
-        :placeholder="field.placeholder"
-        :type="field.type"
-        v-bind="{ ...field.props, ...field.attrs }"
-        class="w-full"
+    <template v-for="(item, index) in items" :key="index">
+      <div
+        v-if="isRow(item)"
+        class="grid grid-cols-[repeat(var(--cols),1fr)] gap-4"
+        :style="{ '--cols': item.fields.length }"
+      >
+        <FieldRenderer
+          v-for="field in item.fields"
+          :key="field.name"
+          v-model="state[field.name]"
+          :field="field"
+        />
+      </div>
+
+      <FieldRenderer
+        v-else
+        v-model="state[item.name]"
+        :field="item"
       />
-    </UFormField>
+    </template>
 
     <slot name="actions" :state="state">
       <UButton type="submit">

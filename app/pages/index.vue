@@ -2,15 +2,27 @@
 import { z } from "zod";
 import { FormBuilder } from "@/builders";
 
+const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
+
 const ContactForm = new FormBuilder()
-  .addField({
-    component: "UInput",
-    name: "name",
-    label: "Full Name",
-    placeholder: "John Doe",
-    required: true,
-    validation: z.string().min(2, "Name must be at least 2 characters"),
-  })
+  .addRow([
+    {
+      component: "UInput",
+      name: "firstName",
+      label: "First Name",
+      placeholder: "John",
+      required: true,
+      validation: z.string().min(2, "First name must be at least 2 characters"),
+    },
+    {
+      component: "UInput",
+      name: "lastName",
+      label: "Last Name",
+      placeholder: "Doe",
+      required: true,
+      validation: z.string().min(2, "Last name must be at least 2 characters"),
+    },
+  ])
   .addField({
     component: "UInput",
     name: "email",
@@ -18,7 +30,7 @@ const ContactForm = new FormBuilder()
     label: "Email Address",
     placeholder: "john@example.com",
     required: true,
-    validation: z.string().email("Please enter a valid email"),
+    validation: z.string().regex(emailRegex, "Please enter a valid email"),
   })
   .addField({
     component: "USelect",
@@ -33,7 +45,7 @@ const ContactForm = new FormBuilder()
         { label: "Sales", value: "sales" },
       ],
     },
-    validation: z.string(),
+    validation: z.string().min(1, "Please select a subject"),
   })
   .addField({
     component: "UTextarea",
@@ -51,7 +63,7 @@ const ContactForm = new FormBuilder()
 const toast = useToast();
 
 async function handleSubmit(data: any) {
-  console.warn("Form submitted:", data);
+  console.table("Form submitted:", data);
 
   await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -63,7 +75,7 @@ async function handleSubmit(data: any) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-black text-white">
+  <div class="min-h-screen">
     <UContainer class="py-16">
       <div class="mx-auto max-w-2xl">
         <h1 class="mb-2 text-4xl font-bold">

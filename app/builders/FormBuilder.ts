@@ -1,16 +1,24 @@
-import type { Field } from "./types";
+import type { Field, FieldOrRow } from "./types";
 import FormRenderer from "./FormRenderer.vue";
 
 export default class FormBuilder {
-  private fields: Field[] = [];
+  private items: FieldOrRow[] = [];
 
   addField(field: Field): this {
-    this.fields.push(field);
+    this.items.push(field);
+    return this;
+  }
+
+  addRow(fields: Field[]): this {
+    this.items.push({
+      type: "row",
+      fields,
+    });
     return this;
   }
 
   build() {
-    const fields = this.fields;
+    const items = this.items;
 
     return defineComponent({
       name: "DynamicForm",
@@ -26,7 +34,7 @@ export default class FormBuilder {
           h(
             FormRenderer,
             {
-              fields,
+              items,
               initialValues: props.initialValues,
               onSubmit: (data: any) => emit("submit", data),
             },

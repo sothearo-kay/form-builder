@@ -13,3 +13,10 @@ export interface Field {
   attrs?: Record<string, any>;
   validation?: ZodType;
 }
+
+export interface FieldRow {
+  type: "row";
+  fields: Field[];
+}
+
+export type FieldOrRow = Field | FieldRow;
