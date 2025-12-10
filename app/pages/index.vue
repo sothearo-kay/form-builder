@@ -75,29 +75,28 @@ async function handleSubmit(data: any) {
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <UContainer class="py-16">
-      <div class="mx-auto max-w-2xl">
-        <h1 class="mb-2 text-4xl font-bold">
-          Form Builder
-        </h1>
-        <p class="mb-12 text-gray-400">
-          Type-safe forms with Zod validation and Nuxt UI
-        </p>
-
-        <ContactForm @submit="handleSubmit">
-          <template #actions="{ state }">
-            <div class="flex justify-end gap-4">
-              <UButton type="button" @click="console.log(state)">
-                Log State
-              </UButton>
-              <UButton type="submit">
-                Submit
-              </UButton>
-            </div>
-          </template>
-        </ContactForm>
-      </div>
-    </UContainer>
-  </div>
+  <UContainer class="max-w-3xl py-16">
+    <ContactForm @submit="handleSubmit">
+      <template #actions="{ state }">
+        <div class="flex justify-end gap-4">
+          <UButton
+            color="neutral"
+            variant="subtle"
+            size="sm"
+            @click="console.log(state)"
+          >
+            Log State
+          </UButton>
+          <UButton
+            color="neutral"
+            variant="solid"
+            size="sm"
+            type="submit"
+          >
+            Submit
+          </UButton>
+        </div>
+      </template>
+    </ContactForm>
+  </UContainer>
 </template>
