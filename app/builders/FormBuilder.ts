@@ -17,6 +17,26 @@ export default class FormBuilder {
     return this;
   }
 
+  addSection(
+    name: string,
+    label: string,
+    callback: (builder: FormBuilder) => void,
+    options?: { description?: string },
+  ): this {
+    const sectionBuilder = new FormBuilder();
+    callback(sectionBuilder);
+
+    this.items.push({
+      type: "section",
+      name,
+      label,
+      description: options?.description,
+      items: sectionBuilder.items,
+    });
+
+    return this;
+  }
+
   build() {
     const items = this.items;
 

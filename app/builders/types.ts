@@ -19,4 +19,12 @@ export interface FieldRow {
   fields: Field[];
 }
 
-export type FieldOrRow = Field | FieldRow;
+export interface FieldSection {
+  type: "section";
+  name: string;
+  label: string;
+  description?: string;
+  items: FieldOrRow[];
+}
+
+export type FieldOrRow = Field | FieldRow | FieldSection;

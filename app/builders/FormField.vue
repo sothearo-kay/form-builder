@@ -4,11 +4,14 @@ import { componentMap } from "./helpers";
 
 interface Props {
   field: Field;
+  path?: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const value = defineModel<any>();
+
+const fieldName = computed(() => props.path || props.field.name);
 
 function getComponent(field: Field) {
   if (typeof field.component === "string") {
@@ -20,7 +23,7 @@ function getComponent(field: Field) {
 
 <template>
   <UFormField
-    :name="field.name"
+    :name="fieldName"
     :label="field.label"
     :description="field.description"
     :required="field.required"

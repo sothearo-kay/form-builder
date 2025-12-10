@@ -26,12 +26,54 @@ const ContactForm = new FormBuilder()
   .addField({
     component: "UInput",
     name: "email",
-    type: "email",
     label: "Email Address",
     placeholder: "john@example.com",
     required: true,
     validation: z.string().regex(emailRegex, "Please enter a valid email"),
   })
+  .addSection(
+    "address",
+    "Address Information",
+    section =>
+      section
+        .addField({
+          component: "UInput",
+          name: "street",
+          label: "Street Address",
+          placeholder: "123 Main St",
+          required: true,
+          validation: z.string().min(5, "Street address must be at least 5 characters"),
+        })
+        .addRow([
+          {
+            component: "UInput",
+            name: "city",
+            label: "City",
+            placeholder: "New York",
+            required: true,
+            validation: z.string().min(2, "City must be at least 2 characters"),
+          },
+          {
+            component: "UInput",
+            name: "state",
+            label: "State",
+            placeholder: "NY",
+            required: true,
+            validation: z.string().length(2, "State must be 2 characters"),
+          },
+          {
+            component: "UInput",
+            name: "zip",
+            label: "ZIP Code",
+            placeholder: "10001",
+            required: true,
+            validation: z.string().length(5, "ZIP code must be 5 digits"),
+          },
+        ]),
+    {
+      description: "Where should we send correspondence?",
+    },
+  )
   .addField({
     component: "USelect",
     name: "subject",
