@@ -28,9 +28,10 @@ function getComponent(field: Field) {
     <component
       :is="getComponent(field)"
       v-model="value"
+      v-bind="{ ...field.props, ...field.attrs }"
       :placeholder="field.placeholder"
       :type="field.type"
-      v-bind="{ ...field.props, ...field.attrs }"
+      color="neutral"
       class="w-full"
     />
   </UFormField>

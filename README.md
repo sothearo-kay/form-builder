@@ -38,6 +38,7 @@ const MyForm = new FormBuilder()
 | ------------------ | ------------------------------------------------------ |
 | `addField(field)`  | Adds a single field to the form, stacked vertically    |
 | `addRow(fields[])` | Adds multiple fields in a horizontal row (grid layout) |
+| `build()`          | Finalizes and returns the form component               |
 
 ## Contributing
 
