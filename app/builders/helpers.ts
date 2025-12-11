@@ -7,6 +7,7 @@ import type {
 } from "./types";
 import {
   UCheckbox,
+  UFileUpload,
   UInput,
   UInputMenu,
   URadioGroup,
@@ -15,6 +16,7 @@ import {
   UTextarea,
 } from "#components";
 import { z } from "zod";
+import DatePicker from "./components/DatePicker.vue";
 
 export const componentMap: Record<string, any> = {
   UInput,
@@ -24,6 +26,8 @@ export const componentMap: Record<string, any> = {
   USelectMenu,
   URadioGroup,
   UCheckbox,
+  UFileUpload,
+  DatePicker,
 };
 
 export function isRow(item: FieldOrRow): item is FieldRow {
@@ -114,7 +118,7 @@ export function buildInitialState(
     state[variant.name] = selectedVariant;
 
     // Initialize state for ALL variants, not just the selected one
-    Object.entries(variant.variants).forEach(([key, variantItems]) => {
+    Object.entries(variant.variants).forEach(([_, variantItems]) => {
       const variantState = buildInitialState(variantItems, initialValues);
       Object.assign(state, variantState);
     });

@@ -164,6 +164,15 @@ const DynamicForm = new FormBuilder()
           validation: z.string().min(5, "Zip code must be at least 5 characters"),
         },
       ]);
+
+      section.addField({
+        component: "DatePicker",
+        name: "moveInDate",
+        label: "Move-in Date",
+        placeholder: "Select move-in date",
+        required: true,
+        validation: z.string().min(1, "Move-in date is required"),
+      });
     },
   )
   .build();

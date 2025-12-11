@@ -28,14 +28,17 @@ function getComponent(field: Field) {
     :description="field.description"
     :required="field.required"
   >
-    <component
-      :is="getComponent(field)"
-      v-model="value"
-      v-bind="{ ...field.props, ...field.attrs }"
-      :placeholder="field.placeholder"
-      :type="field.type"
-      color="neutral"
-      class="w-full"
-    />
+    <template #default="{ error }">
+      <component
+        :is="getComponent(field)"
+        v-model="value"
+        v-bind="{ ...field.props, ...field.attrs }"
+        :placeholder="field.placeholder"
+        :type="field.type"
+        :error="!!error"
+        color="neutral"
+        class="w-full"
+      />
+    </template>
   </UFormField>
 </template>
