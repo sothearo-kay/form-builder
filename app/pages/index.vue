@@ -1,10 +1,59 @@
 <script setup lang="ts">
 import { z } from "zod";
-import { FormBuilder } from "@/builders";
+import { DynamicWizard, FormBuilder, FormWizardBuilder } from "@/builders";
 
 const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
+const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-.~:/?#[\]@!$&'()*+,;=]*)?$/;
 
-const ContactForm = new FormBuilder()
+const AccountDetailsStep = new FormBuilder()
+  .addRow([
+    {
+      component: "UInput",
+      name: "username",
+      label: "Username",
+      placeholder: "John Doe",
+      required: true,
+      validation: z.string().min(3, "Username must be at least 3 characters"),
+    },
+    {
+      component: "UInput",
+      name: "email",
+      label: "Email",
+      placeholder: "john.doe@example.com",
+      required: true,
+      validation: z.string().regex(emailRegex, "Please enter a valid email"),
+    },
+  ])
+  .addRow([
+    {
+      component: "UInput",
+      name: "password",
+      label: "Password",
+      placeholder: "Password",
+      type: "password",
+      required: true,
+      validation: z.string().min(6, "Password must be at least 6 characters"),
+    },
+    {
+      component: "UInput",
+      name: "confirmPassword",
+      label: "Confirm Password",
+      placeholder: "Confirm Password",
+      type: "password",
+      required: true,
+      validation: z.string().min(6, "Please confirm your password"),
+    },
+  ])
+  .addField({
+    component: "UInput",
+    name: "profileLink",
+    label: "Profile Link",
+    placeholder: "https://example.com",
+    validation: z.string().regex(urlRegex, "Please enter a valid URL"),
+  })
+  .build();
+
+const PersonalInfoStep = new FormBuilder()
   .addRow([
     {
       component: "UInput",
@@ -23,122 +72,164 @@ const ContactForm = new FormBuilder()
       validation: z.string().min(2, "Last name must be at least 2 characters"),
     },
   ])
+  .addRow([
+    {
+      component: "UInput",
+      name: "mobile",
+      label: "Mobile",
+      placeholder: "+1 (555) 123-4567",
+      required: true,
+      validation: z.string().min(10, "Please enter a valid mobile number"),
+    },
+    {
+      component: "UInput",
+      name: "pincode",
+      label: "Pincode",
+      placeholder: "Postal Code",
+      required: true,
+      validation: z.string().min(5, "Please enter a valid pincode"),
+    },
+  ])
   .addField({
     component: "UInput",
-    name: "email",
-    label: "Email Address",
-    placeholder: "john@example.com",
+    name: "address",
+    label: "Address",
+    placeholder: "123 Main St",
     required: true,
-    validation: z.string().regex(emailRegex, "Please enter a valid email"),
+    validation: z.string().min(5, "Address must be at least 5 characters"),
   })
-  .addSection(
-    "address",
-    "Address Information",
-    section =>
-      section
-        .addField({
-          component: "UInput",
-          name: "street",
-          label: "Street Address",
-          placeholder: "123 Main St",
-          required: true,
-          validation: z.string().min(5, "Street address must be at least 5 characters"),
-        })
-        .addRow([
-          {
-            component: "UInput",
-            name: "city",
-            label: "City",
-            placeholder: "New York",
-            required: true,
-            validation: z.string().min(2, "City must be at least 2 characters"),
-          },
-          {
-            component: "UInput",
-            name: "state",
-            label: "State",
-            placeholder: "NY",
-            required: true,
-            validation: z.string().length(2, "State must be 2 characters"),
-          },
-          {
-            component: "UInput",
-            name: "zip",
-            label: "ZIP Code",
-            placeholder: "10001",
-            required: true,
-            validation: z.string().length(5, "ZIP code must be 5 digits"),
-          },
-        ]),
+  .addField({
+    component: "UInput",
+    name: "landmark",
+    label: "Landmark",
+    placeholder: "Near Central Park, New York",
+    validation: z.string().optional(),
+  })
+  .addRow([
     {
-      description: "Where should we send correspondence?",
+      component: "UInput",
+      name: "city",
+      label: "City",
+      placeholder: "New York",
+      required: true,
+      validation: z.string().min(2, "City must be at least 2 characters"),
     },
-  )
+    {
+      component: "UInput",
+      name: "state",
+      label: "State",
+      placeholder: "NY",
+      required: true,
+      validation: z.string().min(2, "State must be at least 2 characters"),
+    },
+  ])
+  .build();
+
+const BillingStep = new FormBuilder()
   .addField({
-    component: "USelect",
-    name: "subject",
-    label: "Subject",
-    placeholder: "Select subject",
+    component: "UInput",
+    name: "cardNumber",
+    label: "Card Number",
+    placeholder: "1234 5678 9012 3456",
     required: true,
-    props: {
-      items: [
-        { label: "General Inquiry", value: "general" },
-        { label: "Support", value: "support" },
-        { label: "Sales", value: "sales" },
-      ],
-    },
-    validation: z.string().min(1, "Please select a subject"),
+    validation: z.string().min(16, "Please enter a valid card number"),
   })
-  .addField({
-    component: "UTextarea",
-    name: "message",
-    label: "Message",
-    placeholder: "Your message here...",
-    required: true,
-    props: {
-      rows: 4,
+  .addRow([
+    {
+      component: "UInput",
+      name: "nameOnCard",
+      label: "Name on Card",
+      placeholder: "John Doe",
+      required: true,
+      validation: z.string().min(3, "Name must be at least 3 characters"),
     },
-    validation: z.string().min(10, "Message must be at least 10 characters"),
+    {
+      component: "UInput",
+      name: "expiryDate",
+      label: "Expiry Date",
+      placeholder: "MM/YY",
+      required: true,
+      validation: z.string().regex(/^\d{2}\/\d{2}$/, "Format: MM/YY"),
+    },
+    {
+      component: "UInput",
+      name: "cvc",
+      label: "CVC",
+      placeholder: "123",
+      required: true,
+      validation: z.string().length(3, "CVC must be 3 digits"),
+    },
+  ])
+  .build();
+
+const { steps } = new FormWizardBuilder()
+  .addStep("Account Details", AccountDetailsStep, {
+    name: "account-details",
+    description: "Setup Account Details",
+  })
+  .addStep("Personal Information", PersonalInfoStep, {
+    name: "personal-information",
+    description: "Add Personal Info",
+  })
+  .addStep("Billing", BillingStep, {
+    name: "billing",
+    description: "Payment Details",
   })
   .build();
 
 const toast = useToast();
 
-async function handleSubmit(data: any) {
-  console.table("Form submitted:", data);
-
-  await new Promise(resolve => setTimeout(resolve, 1000));
+function handleFinish(data: Record<string, any>) {
+  console.log("Wizard completed with data:", data);
 
   toast.add({
     title: "Success!",
-    description: "Your message has been sent.",
+    description: "Your account has been created successfully.",
+    color: "success",
   });
+}
+
+function handleStepSubmit({ step, stepName, data }: { step: number; stepName: string; data: any }) {
+  console.log(`Step ${step} (${stepName}) submitted:`, data);
 }
 </script>
 
 <template>
-  <UContainer class="max-w-3xl py-16">
-    <ContactForm @submit="handleSubmit">
-      <template #actions="{ state }">
-        <div class="flex justify-end gap-4">
+  <UContainer class="max-w-6xl py-16">
+    <DynamicWizard
+      :steps="steps"
+      :linear="true"
+      @finish="handleFinish"
+      @step-submit="handleStepSubmit"
+    >
+      <template #actions="{ goNext, goPrev, isFirstStep, isLastStep }">
+        <div class="flex justify-between">
           <UButton
+            :disabled="isFirstStep"
             color="neutral"
-            variant="subtle"
-            size="sm"
-            @click="console.log(state)"
+            variant="outline"
+            @click="goPrev"
           >
-            Log State
+            Previous
           </UButton>
+
           <UButton
+            v-if="!isLastStep"
             color="neutral"
-            variant="solid"
-            size="sm"
-            type="submit"
+            @click="goNext"
           >
-            Submit
+            Next
+          </UButton>
+
+          <UButton
+            v-else
+            color="neutral"
+            @click="goNext"
+          >
+            Finish
           </UButton>
         </div>
       </template>
-    </ContactForm>
+    </DynamicWizard>
   </UContainer>
 </template>
