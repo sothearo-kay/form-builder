@@ -24,42 +24,58 @@ const DynamicForm = new FormBuilder()
             builder.addSection(
               { name: "person", collapsible: false },
               (section) => {
-                section.addRow([
-                  {
-                    component: "UInput",
-                    name: "firstName",
-                    label: "First Name",
-                    placeholder: "John",
-                    required: true,
-                    validation: z.string().min(2, "First name must be at least 2 characters"),
-                  },
-                  {
-                    component: "UInput",
-                    name: "lastName",
-                    label: "Last Name",
-                    placeholder: "Doe",
-                    required: true,
-                    validation: z.string().min(2, "Last name must be at least 2 characters"),
-                  },
-                ]);
+                section.addColumns(["110px", "1fr"], (builders) => {
+                  // Left column: form fields in 2 columns
+                  builders[1]!.addRow([
+                    {
+                      component: "UInput",
+                      name: "firstName",
+                      label: "First Name",
+                      placeholder: "John",
+                      required: true,
+                      validation: z.string().min(2, "First name must be at least 2 characters"),
+                    },
+                    {
+                      component: "UInput",
+                      name: "lastName",
+                      label: "Last Name",
+                      placeholder: "Doe",
+                      required: true,
+                      validation: z.string().min(2, "Last name must be at least 2 characters"),
+                    },
+                  ]);
 
-                section.addRow([
-                  {
-                    component: "UInput",
-                    name: "email",
-                    type: "email",
-                    label: "Email",
-                    placeholder: "john@example.com",
-                    validation: z.string().email().optional(),
-                  },
-                  {
-                    component: "UInput",
-                    name: "phone",
-                    label: "Phone",
-                    placeholder: "+1 234 567 8900",
-                    validation: z.string().optional(),
-                  },
-                ]);
+                  builders[1]!.addRow([
+                    {
+                      component: "UInput",
+                      name: "email",
+                      type: "email",
+                      label: "Email",
+                      placeholder: "john@example.com",
+                      validation: z.string().email().optional(),
+                    },
+                    {
+                      component: "UInput",
+                      name: "phone",
+                      label: "Phone",
+                      placeholder: "+1 234 567 8900",
+                      validation: z.string().optional(),
+                    },
+                  ]);
+
+                  // Right column: avatar
+                  builders[0]!.addField({
+                    component: "UFileUpload",
+                    name: "avatar",
+                    label: "Profile Picture",
+                    required: true,
+                    props: {
+                      accept: "image/*",
+                      multiple: false,
+                    },
+                    validation: z.instanceof(File, { message: "Profile picture is required" }),
+                  });
+                });
               },
             );
           },
@@ -164,15 +180,6 @@ const DynamicForm = new FormBuilder()
           validation: z.string().min(5, "Zip code must be at least 5 characters"),
         },
       ]);
-
-      section.addField({
-        component: "DatePicker",
-        name: "moveInDate",
-        label: "Move-in Date",
-        placeholder: "Select move-in date",
-        required: true,
-        validation: z.string().min(1, "Move-in date is required"),
-      });
     },
   )
   .build();

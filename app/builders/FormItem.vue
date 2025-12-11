@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FieldOrRow } from "./types";
 import FormField from "./FormField.vue";
-import { isRow, isSection, isVariant } from "./helpers";
+import { isColumns, isRow, isSection, isVariant } from "./helpers";
 
 interface Props {
   items: FieldOrRow[];
@@ -104,6 +104,20 @@ function getPath(fieldName: string) {
           />
         </div>
       </template>
+    </div>
+
+    <div
+      v-else-if="isColumns(item)"
+      class="grid gap-4"
+      :style="{ gridTemplateColumns: item.spans.map(span => typeof span === 'number' ? `${span}fr` : span).join(' ') }"
+    >
+      <div v-for="(column, colIndex) in item.columns" :key="colIndex" class="flex flex-col gap-4">
+        <FormItem
+          :items="column"
+          :state="state"
+          :parent-path="parentPath"
+        />
+      </div>
     </div>
 
     <div

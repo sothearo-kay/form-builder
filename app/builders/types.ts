@@ -51,4 +51,10 @@ export interface FieldVariant {
   variants: Record<string, FieldOrRow[]>;
 }
 
-export type FieldOrRow = Field | FieldRow | FieldSection | FieldVariant;
+export interface FieldColumns {
+  type: "columns";
+  spans: (number | string)[];
+  columns: FieldOrRow[][];
+}
+
+export type FieldOrRow = Field | FieldRow | FieldSection | FieldVariant | FieldColumns;

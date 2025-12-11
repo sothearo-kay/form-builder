@@ -22,6 +22,22 @@ export default class FormBuilder {
     return this;
   }
 
+  addColumns(
+    spans: (number | string)[],
+    callback: (builders: FormBuilder[]) => void,
+  ): this {
+    const builders = spans.map(() => new FormBuilder());
+    callback(builders);
+
+    this.items.push({
+      type: "columns",
+      spans,
+      columns: builders.map(b => b.items),
+    });
+
+    return this;
+  }
+
   addSection(
     options: SectionOptions & { name: string },
     callback: (builder: FormBuilder) => void,

@@ -27,6 +27,7 @@ function getComponent(field: Field) {
     :label="field.label"
     :description="field.description"
     :required="field.required"
+    :ui="{ root: 'flex-1 flex flex-col', container: 'flex-1 flex' }"
   >
     <template #default="{ error }">
       <component

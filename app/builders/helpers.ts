@@ -1,5 +1,6 @@
 import type {
   Field,
+  FieldColumns,
   FieldOrRow,
   FieldRow,
   FieldSection,
@@ -7,7 +8,6 @@ import type {
 } from "./types";
 import {
   UCheckbox,
-  UFileUpload,
   UInput,
   UInputMenu,
   URadioGroup,
@@ -17,6 +17,7 @@ import {
 } from "#components";
 import { z } from "zod";
 import DatePicker from "./components/DatePicker.vue";
+import FileUpload from "./components/FileUpload.vue";
 
 export const componentMap: Record<string, any> = {
   UInput,
@@ -26,7 +27,7 @@ export const componentMap: Record<string, any> = {
   USelectMenu,
   URadioGroup,
   UCheckbox,
-  UFileUpload,
+  UFileUpload: FileUpload,
   DatePicker,
 };
 
@@ -42,11 +43,17 @@ export function isVariant(item: FieldOrRow): item is FieldVariant {
   return "type" in item && item.type === "variant";
 }
 
+export function isColumns(item: FieldOrRow): item is FieldColumns {
+  return "type" in item && item.type === "columns";
+}
+
 function extractFields(item: FieldOrRow): Field[] {
   if (isSection(item) || isVariant(item))
     return [];
   if (isRow(item))
     return item.fields;
+  if (isColumns(item))
+    return item.columns.flatMap(column => column.flatMap(extractFields));
   return [item];
 }
 
@@ -54,7 +61,7 @@ const getSections = (items: FieldOrRow[]) => items.filter(isSection);
 const getVariants = (items: FieldOrRow[]) => items.filter(isVariant);
 
 function getAllFields(items: FieldOrRow[]) {
-  return items.filter(item => !isSection(item) && !isVariant(item)).flatMap(extractFields);
+  return items.filter(item => !isSection(item) && !isVariant(item) && !isColumns(item)).flatMap(extractFields);
 }
 
 export function flattenFields(items: FieldOrRow[]): Field[] {
@@ -63,6 +70,8 @@ export function flattenFields(items: FieldOrRow[]): Field[] {
       return flattenFields(item.items);
     if (isVariant(item))
       return Object.values(item.variants).flatMap(flattenFields);
+    if (isColumns(item))
+      return item.columns.flatMap(flattenFields);
     return extractFields(item);
   });
 }
