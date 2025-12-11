@@ -1,4 +1,10 @@
-import type { Field, FieldOrRow, FieldRow, FieldSection } from "./types";
+import type {
+  Field,
+  FieldOrRow,
+  FieldRow,
+  FieldSection,
+  FieldVariant,
+} from "./types";
 import {
   UCheckbox,
   UInput,
@@ -28,39 +34,64 @@ export function isSection(item: FieldOrRow): item is FieldSection {
   return "type" in item && item.type === "section";
 }
 
+export function isVariant(item: FieldOrRow): item is FieldVariant {
+  return "type" in item && item.type === "variant";
+}
+
 function extractFields(item: FieldOrRow): Field[] {
-  if (isSection(item))
+  if (isSection(item) || isVariant(item))
     return [];
-  return isRow(item) ? item.fields : [item];
+  if (isRow(item))
+    return item.fields;
+  return [item];
 }
 
 const getSections = (items: FieldOrRow[]) => items.filter(isSection);
+const getVariants = (items: FieldOrRow[]) => items.filter(isVariant);
 
 function getAllFields(items: FieldOrRow[]) {
-  return items.filter(item => !isSection(item)).flatMap(extractFields);
+  return items.filter(item => !isSection(item) && !isVariant(item)).flatMap(extractFields);
 }
 
 export function flattenFields(items: FieldOrRow[]): Field[] {
-  return items.flatMap(item =>
-    isSection(item) ? flattenFields(item.items) : extractFields(item),
-  );
+  return items.flatMap((item) => {
+    if (isSection(item))
+      return flattenFields(item.items);
+    if (isVariant(item))
+      return Object.values(item.variants).flatMap(flattenFields);
+    return extractFields(item);
+  });
 }
 
-export function buildNestedSchema(items: FieldOrRow[]): z.ZodObject<any> {
+export function buildNestedSchema(items: FieldOrRow[], state?: Record<string, any>): z.ZodObject<any> {
   const shape: Record<string, any> = {};
 
-  for (const section of getSections(items)) {
-    const sectionSchema = buildNestedSchema(section.items);
-    if (Object.keys(sectionSchema.shape).length > 0) {
-      shape[section.name] = sectionSchema;
-    }
-  }
+  getSections(items).forEach((section) => {
+    const sectionState = state?.[section.name];
+    const schema = buildNestedSchema(section.items, sectionState);
 
-  for (const field of getAllFields(items)) {
+    if (Object.keys(schema.shape).length > 0) {
+      shape[section.name] = schema;
+    }
+  });
+
+  getVariants(items).forEach((variant) => {
+    shape[variant.name] = z.string();
+
+    const selectedVariant = state?.[variant.name] ?? variant.defaultValue;
+
+    const variantItems = variant.variants[selectedVariant];
+    if (variantItems) {
+      const schema = buildNestedSchema(variantItems, state);
+      Object.assign(shape, schema.shape);
+    }
+  });
+
+  getAllFields(items).forEach((field) => {
     if (field.validation) {
       shape[field.name] = field.validation;
     }
-  }
+  });
 
   return z.object(shape);
 }
@@ -71,16 +102,27 @@ export function buildInitialState(
 ): any {
   const state: Record<string, any> = {};
 
-  for (const section of getSections(items)) {
+  getSections(items).forEach((section) => {
     state[section.name] = buildInitialState(
       section.items,
       initialValues[section.name] ?? {},
     );
-  }
+  });
 
-  for (const field of getAllFields(items)) {
+  getVariants(items).forEach((variant) => {
+    const selectedVariant = initialValues[variant.name] ?? variant.defaultValue;
+    state[variant.name] = selectedVariant;
+
+    // Initialize state for ALL variants, not just the selected one
+    Object.entries(variant.variants).forEach(([key, variantItems]) => {
+      const variantState = buildInitialState(variantItems, initialValues);
+      Object.assign(state, variantState);
+    });
+  });
+
+  getAllFields(items).forEach((field) => {
     state[field.name] = initialValues[field.name] ?? "";
-  }
+  });
 
   return state;
 }

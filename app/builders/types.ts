@@ -19,12 +19,36 @@ export interface FieldRow {
   fields: Field[];
 }
 
+export interface SectionOptions {
+  name: string;
+  label?: string;
+  description?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+}
+
 export interface FieldSection {
   type: "section";
   name: string;
-  label: string;
+  label?: string;
   description?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
   items: FieldOrRow[];
 }
 
-export type FieldOrRow = Field | FieldRow | FieldSection;
+export interface VariantOption {
+  value: string;
+  label: string;
+}
+
+export interface FieldVariant {
+  type: "variant";
+  name: string;
+  label?: string;
+  defaultValue: string;
+  options: VariantOption[];
+  variants: Record<string, FieldOrRow[]>;
+}
+
+export type FieldOrRow = Field | FieldRow | FieldSection | FieldVariant;

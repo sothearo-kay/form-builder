@@ -7,9 +7,11 @@ const colorMode = useColorMode();
     <header class="sticky top-0 z-50 border-b border-dashed border-neutral-200 bg-white/75 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/90">
       <UContainer class="flex h-16 items-center justify-between px-4">
         <div class="flex items-center gap-2">
-          <h1 class="text-lg font-semibold">
-            Form Builder
-          </h1>
+          <NuxtLink to="/">
+            <h1 class="text-lg font-semibold">
+              Form Builder
+            </h1>
+          </NuxtLink>
         </div>
 
         <div class="flex items-center gap-1">
